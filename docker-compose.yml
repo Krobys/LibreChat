@@ -4,8 +4,6 @@
 services:
   api:
     container_name: LibreChat
-    ports:
-      - "3080:3080"
     depends_on:
       - mongodb
       - rag_api
@@ -18,8 +16,9 @@ services:
       - default
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.librechat.rule=Host(`192.168.1.145`)"
-      - "traefik.http.routers.librechat.entrypoints=web"
+      - "traefik.http.routers.librechat.rule=Host(`exomind.duckdns.org`)"
+      - "traefik.http.routers.librechat.entrypoints=websecure"
+      - "traefik.http.routers.librechat.tls.certresolver=letsencrypt"
       - "traefik.http.services.librechat.loadbalancer.server.port=3080"
     environment:
       - HOST=0.0.0.0
