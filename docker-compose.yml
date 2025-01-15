@@ -5,15 +5,22 @@ services:
   api:
     container_name: LibreChat
     ports:
-      - "${PORT}:${PORT}"
+      - "3080:3080"
     depends_on:
       - mongodb
       - rag_api
     image: ghcr.io/danny-avila/librechat-dev:latest
-    restart: always
     user: "${UID}:${GID}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    networks:
+      - dokploy-network
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.librechat.rule=Host(`192.168.1.145`)"
+      - "traefik.http.routers.librechat.entrypoints=web"
+      - "traefik.http.services.librechat.loadbalancer.server.port=3080"
     environment:
       - HOST=0.0.0.0
       - MONGO_URI=mongodb://mongodb:27017/LibreChat
@@ -31,6 +38,8 @@ services:
     image: mongo
     restart: always
     user: "${UID}:${GID}"
+    networks:
+      - default
     volumes:
       - ./data-node:/data/db
     command: mongod --noauth
@@ -42,6 +51,8 @@ services:
     environment:
       - MEILI_HOST=http://meilisearch:7700
       - MEILI_NO_ANALYTICS=true
+    networks:
+      - default
     volumes:
       - ./meili_data_v1.7:/meili_data
   vectordb:
@@ -52,11 +63,15 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
     restart: always
+    networks:
+      - default
     volumes:
       - pgdata2:/var/lib/postgresql/data
   rag_api:
     container_name: rag_api
     image: ghcr.io/danny-avila/librechat-rag-api-dev-lite:latest
+    networks:
+      - default
     environment:
       - DB_HOST=vectordb
       - RAG_PORT=${RAG_PORT:-8000}
@@ -68,3 +83,8 @@ services:
 
 volumes:
   pgdata2:
+
+networks:
+  default:
+  dokploy-network:
+      external: true
