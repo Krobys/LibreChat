@@ -7,6 +7,4 @@ version: 1.0.5
 cache: true
 
 registration:
-  socialLogins: ["google"]
-  allowedDomains:
-    - "gmail.com"
+  socialLogins: ['github', 'google']
