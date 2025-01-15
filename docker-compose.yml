@@ -40,7 +40,7 @@ services:
     networks:
       - default
     volumes:
-      - ./data-node:/data/db
+      - data-node:/data/db
     command: mongod --noauth
   meilisearch:
     container_name: chat-meilisearch
@@ -82,6 +82,7 @@ services:
 
 volumes:
   pgdata2:
+  data-node:
 
 networks:
   default:
